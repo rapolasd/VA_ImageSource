@@ -278,16 +278,17 @@ public class ISMReverb : MonoBehaviour
                         Vector3 p_plane = renderSettings.PlaneCenters[i_child];
                         Vector3 n_plane = renderSettings.PlaneNormals[i_child];
                         // (E2) YOUR CODE HERE: calculate the distance from the plane to the source
-                        //float sourcePlaneDistance = ...
+                        float sourcePlaneDistance = Vector3.Dot(n_plane, parentSource.pos - p_plane);
                         // Is the parent source in front of the plane?
-                        if (true /* <-- (E2) YOUR CODE HERE */)
+                        if (sourcePlaneDistance > 0 /* <-- (E2) YOUR CODE HERE */)
                         {
                             // Parent source is in front of the plane,
                             // calculate mirrored position
-                            // Vector3 mirroredPosition = ...
+                            Vector3 mirroredPosition = parentSource.pos - 2 * sourcePlaneDistance * n_plane;
 
                             // Add the image source
                             // (E2) YOUR CODE HERE
+                            imageSources.Add(new ImageSource(mirroredPosition,p_plane, n_plane, i_parent));
                         }
                     }
                 }
