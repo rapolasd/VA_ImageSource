@@ -252,7 +252,7 @@ public class ISMReverb : MonoBehaviour
             // === E1: Add direct sound ===
             // Add the original source to the image sources list
             // (E1) YOUR CODE HERE
-
+            imageSources.Add(new ImageSource(SourcePosition));
             // For each order of reflection
             int i_end = 0;
             for (var i_refl = 0; 
