@@ -301,7 +301,7 @@ public class ISMReverb : MonoBehaviour
         for (var i = 0; i < imageSources.Count; ++i)
         {
             // Calculate path length
-            float pathLength = 0 /* <-- (E3) YOUR CODE HERE */;
+            float pathLength = Vector3.Distance(imageSources[i].pos,ListenerPosition) /* <-- (E3) YOUR CODE HERE */;
             // Check that the path can contribute to the impulse response
             if (pathLength < renderSettings.MaximumRayLength)
             {
@@ -309,7 +309,7 @@ public class ISMReverb : MonoBehaviour
                 RaycastHitPath path = new RaycastHitPath(pathLength);
                 // (E3) YOUR CODE HERE: Set the listener as the starting point for
                 // the ray
-                //Vector3 origin = ...
+                Vector3 origin = ListenerPosition;
                 //Vector3 originNormal = ...
                 int i_next = i;
                 bool isValidPath = true;
@@ -317,30 +317,36 @@ public class ISMReverb : MonoBehaviour
                 // found the path invalid
                 while (i_next != -1 && isValidPath)
                 {
+                    
                     // Get the current source
                     ImageSource imageSource = imageSources[i_next];
                     // (E3) YOUR CODE HERE: Determine ray direction and length
-                    //Vector3 dir = ...
-                    //float max_length = ...
+                    Vector3 dir = imageSource.pos - origin;
+                    float max_length = dir.magnitude;
 
                     // Trace the ray
                     RaycastHit hit;
-
+                    
                     if (imageSource.i_parent == -1)
                     {
                         // Handle the real source
                         // (E3) YOUR CODE HERE: check that the path is not obstructed
-                        //isValidPath = ...
+                        isValidPath = !Physics.Raycast(origin, dir, max_length, ism_colliders_only);
+                        
                         // Create an empty RaycastHit object
                         hit = new RaycastHit();
                         // Fill the hit object with the real source details
                         // (E3) YOUR CODE HERE
+                        hit.point = imageSource.pos;
+                        
                     }
                     else
                     {
                         // Handle image sources
                         // (E3) YOUR CODE HERE: check that the ray hits a wall on mirroring plane
-                        //isValidPath = ...
+                        Physics.Raycast(origin, dir, out hit, max_length, ism_colliders_only);
+                        isValidPath = ISMMath.PlaneEQ(hit, imageSource);
+
                     }
                     // (E3) Are there more checks needed? This depends on your previous implementation.
 
@@ -349,10 +355,10 @@ public class ISMReverb : MonoBehaviour
                     {
                         // Path is valid, add the hit point to the ray path
                         // (E3) YOUR CODE HERE
-
+                        path.points.Add(hit.point);
                         // Prepare to send the ray towards the next image source
-                        i_next = -1;  // A placeholder, replace this
-                        //origin = ...
+                        i_next = imageSource.i_parent;  // A placeholder, replace this
+                        origin = imageSource.pos;
                         //origin_normal = ...
                     }
                 }
@@ -360,9 +366,14 @@ public class ISMReverb : MonoBehaviour
                 if (isValidPath)
                 {
                     // (E3) YOUR CODE HERE
+                    hitPaths.Add(path);
                 }
+                
+
             }
+            
         }
+        
         // === E5: create image source impulse response ===
         foreach (var path in hitPaths)
         {
