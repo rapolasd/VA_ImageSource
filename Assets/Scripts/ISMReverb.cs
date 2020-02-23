@@ -255,20 +255,23 @@ public class ISMReverb : MonoBehaviour
             imageSources.Add(new ImageSource(SourcePosition));
             // For each order of reflection
             int i_end = 0;
+            int i_begin = 0;
             for (var i_refl = 0; 
                  i_refl < renderSettings.NumberOfISMReflections; 
                  ++i_refl)
             {
                 // === E4: Higher order reflections ===
                 // (E4) YOUR CODE HERE: Update parent interval
-                // i_begin = ...
-                // i_end = ...
+                i_begin = i_refl;
+                i_end =  imageSources.Count;
+                Debug.Log(i_begin);
                 // For each parent to reflect
-                for (var i_parent = 0; i_parent < Mathf.Min(1, imageSources.Count); ++i_parent /* <-- (E4) YOUR CODE HERE: use i_begin and i_end to go through the parent image sources */)
+                for (var i_parent = i_begin; i_parent < i_end; ++i_parent /* <-- (E4) YOUR CODE HERE: use i_begin and i_end to go through the parent image sources */)
                 {
                     // === E2: Calculate image source positions ===
                     // Parent source on this iteration
                     ImageSource parentSource = imageSources[i_parent];
+                    Debug.Log("i_parent "+i_parent+" pos "+parentSource.pos);
                     // For each mirroring plane
                     for (var i_child = 0; 
                          i_child < renderSettings.PlaneCenters.Length; 
@@ -279,6 +282,7 @@ public class ISMReverb : MonoBehaviour
                         Vector3 n_plane = renderSettings.PlaneNormals[i_child];
                         // (E2) YOUR CODE HERE: calculate the distance from the plane to the source
                         float sourcePlaneDistance = Vector3.Dot(n_plane, parentSource.pos - p_plane);
+                        //Debug.Log("dist " + sourcePlaneDistance);
                         // Is the parent source in front of the plane?
                         if (sourcePlaneDistance > 0 /* <-- (E2) YOUR CODE HERE */)
                         {
@@ -373,18 +377,44 @@ public class ISMReverb : MonoBehaviour
             }
             
         }
-        
+
         // === E5: create image source impulse response ===
+
         foreach (var path in hitPaths)
+
         {
-            // Calculate the sample that the ray path contributes to
-            int i_path = 0;  // <-- (E5) YOUR CODE HERE
+
+            // Calculate the sample that the ray path contributes to int i_path = 0;  <-- (E5) YOUR CODE HERE
+
+
+
+            float time = path.totalPathLength / ISMRenderSettings.speedOfSound;
+
+            int i_path = Mathf.RoundToInt(time * AudioSettings.outputSampleRate);
+
+
+
             if (i_path < ir.Length)
+
             {
-                // (E5) YOUR CODE HERE: Determine the signal magnitude  w.r.t.
-                // the amount of wall hits in the path
-                //ir[i_path] += ...
+
+                // (E5) YOUR CODE HERE: Determine the signal magnitude  w.r.t. the amount of wall hits in the path
+
+
+
+                float numerator = (Mathf.Pow((1 - renderSettings.Absorption) * (1 - 0), path.points.Count / 2)); //renderSettings.DiffuseProportion
+
+
+                float denominator = path.totalPathLength + 0.000001f;
+
+                float Pray = numerator / denominator;
+
+
+
+                ir[i_path] += Pray;
+
             }
+
         }
     }
 
