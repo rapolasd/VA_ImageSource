@@ -264,14 +264,13 @@ public class ISMReverb : MonoBehaviour
                 // (E4) YOUR CODE HERE: Update parent interval
                 i_begin = i_refl;
                 i_end =  imageSources.Count;
-                Debug.Log(i_begin);
                 // For each parent to reflect
                 for (var i_parent = i_begin; i_parent < i_end; ++i_parent /* <-- (E4) YOUR CODE HERE: use i_begin and i_end to go through the parent image sources */)
                 {
                     // === E2: Calculate image source positions ===
                     // Parent source on this iteration
                     ImageSource parentSource = imageSources[i_parent];
-                    Debug.Log("i_parent "+i_parent+" pos "+parentSource.pos);
+
                     // For each mirroring plane
                     for (var i_child = 0; 
                          i_child < renderSettings.PlaneCenters.Length; 
@@ -402,14 +401,15 @@ public class ISMReverb : MonoBehaviour
 
 
 
-                float numerator = (Mathf.Pow((1 - renderSettings.Absorption) * (1 - 0), path.points.Count / 2)); //renderSettings.DiffuseProportion
-
+                float numerator = (Mathf.Pow((1 - renderSettings.Absorption) * (1 - renderSettings.DiffuseProportion), (path.points.Count-1) / 2));
 
                 float denominator = path.totalPathLength + 0.000001f;
 
-                float Pray = numerator / denominator;
+                float Pray = Mathf.Pow(-1, path.points.Count-1) * numerator / denominator;
 
-
+                Debug.Log(path.points.Count-1);
+                Debug.Log(Pray);
+                Debug.Log(i_path);
 
                 ir[i_path] += Pray;
 
