@@ -358,7 +358,7 @@ public class ISMReverb : MonoBehaviour
                         path.points.Add(hit.point);
                         // Prepare to send the ray towards the next image source
                         i_next = imageSource.i_parent;  // A placeholder, replace this
-                        origin = imageSource.pos;
+                        origin = hit.point;
                         //origin_normal = ...
                     }
                 }
